@@ -5,200 +5,317 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CornSense - Monitoring Pertanian Pintar</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-green: #2d6a4f;
             --accent-yellow: #ffb703;
         }
-        body {
-            background-color: #f0f4f1;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .bg-app-green { background-color: #2d6a4f; }
+        .bg-app-yellow { background-color: #ffb703; }
+        .text-app-yellow { color: #ffb703; }
+        
+        .card-glow:hover {
+            box-shadow: 0 0 20px rgba(255, 183, 3, 0.4);
+            transform: translateY(-2px);
         }
-        .bg-green-custom { background-color: #2d6a4f; }
-        .text-yellow-custom { color: #ffb703; }
-        .card-sensor {
-            background: #ffb703;
-            transition: transform 0.3s ease;
-        }
-        .card-sensor:hover {
-            transform: translateY(-5px);
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2d6a4f; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Navigation -->
-    <nav class="bg-green-custom text-white p-4 sticky top-0 z-50 shadow-lg">
+    <!-- NAVBAR -->
+    <nav class="bg-app-green text-white p-4 sticky top-0 z-50 shadow-xl border-b border-yellow-600/30">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold flex items-center">
-                <i class="fas fa-seedling mr-2 text-yellow-400"></i> CornSense
-            </h1>
-            <div class="hidden md:flex space-x-6">
-                <a href="#home" class="hover:text-yellow-400">Home</a>
-                <a href="#features" class="hover:text-yellow-400">Fitur</a>
-                <a href="#demo" class="hover:text-yellow-400">Live Demo</a>
-                <a href="#login" class="bg-yellow-500 px-4 py-1 rounded-full text-green-900 font-bold hover:bg-white transition">Masuk</a>
+            <div class="flex items-center gap-3">
+                <i class="fas fa-seedling text-app-yellow text-3xl"></i>
+                <span class="text-2xl font-black tracking-tighter">CORNSENSE</span>
+            </div>
+            <div class="hidden md:flex gap-6 font-bold text-[11px] uppercase tracking-widest items-center">
+                <a href="#home" class="hover:text-app-yellow transition">Beranda</a>
+                <a href="#realtime" class="hover:text-app-yellow transition">Realtime Sensor</a>
+                <a href="#history" class="hover:text-app-yellow transition">Riwayat Data</a>
+                <a href="#login" class="bg-app-yellow text-app-green px-5 py-2 rounded-full hover:bg-white transition ml-4">Masuk</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section (Inspirasi: Login Page) -->
-    <header id="home" class="relative bg-green-custom py-20 px-6 overflow-hidden">
-        <div class="container mx-auto flex flex-col md:flex-row items-center relative z-10">
-            <div class="md:w-1/2 text-white">
-                <h2 class="text-4xl md:text-6xl font-extrabold mb-4">Pantau Ladang Jagung Anda Secara Realtime</h2>
-                <p class="text-lg mb-8 opacity-90">Sistem monitoring berbasis IoT untuk optimasi hasil panen jagung dengan data akurat dari sensor tanah dan udara.</p>
-                <div class="flex space-x-4">
-                    <button class="bg-yellow-500 text-green-900 px-8 py-3 rounded-lg font-bold text-lg hover:scale-105 transition">Mulai Sekarang</button>
-                    <button class="border-2 border-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-white hover:text-green-800 transition">Pelajari Fitur</button>
+    <!-- HERO SECTION -->
+    <header id="home" class="bg-app-green py-20 relative overflow-hidden">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 text-white z-10">
+                <h1 class="text-5xl md:text-7xl font-black leading-none mb-6">PEMANTAUAN <br><span class="text-app-yellow">LAHAN JAGUNG</span></h1>
+                <p class="text-lg opacity-80 mb-8 max-w-lg">Sistem otomasi berbasis IoT untuk meningkatkan efisiensi dan hasil panen melalui data sensor presisi tinggi.</p>
+                <div class="flex gap-4">
+                    <a href="#realtime" class="inline-block bg-app-yellow text-app-green font-extrabold px-8 py-3 rounded-xl text-md hover:scale-105 transition shadow-2xl">MULAI PANTAU</a>
                 </div>
             </div>
-            <div class="md:w-1/2 mt-12 md:mt-0 flex justify-center">
-                <img src="https://img.icons8.com/color/480/corn.png" alt="Corn Illustration" class="w-64 md:w-80 animate-bounce" style="animation-duration: 3s;">
+            <div class="md:w-1/2 mt-12 md:mt-0 flex justify-center relative">
+                <div class="absolute inset-0 bg-yellow-400 blur-[100px] opacity-20"></div>
+                <!-- Menggunakan Ikon Jagung yang Solid -->
+                <img src="https://img.icons8.com/color/512/corn.png" alt="Corn Illustration" class="w-64 md:w-80 animate-bounce transition-all z-10" style="animation-duration: 4s;">
             </div>
         </div>
-        <!-- Abstract Decorations -->
         <div class="absolute bottom-0 left-0 w-full opacity-10">
-            <svg viewBox="0 0 1440 320"><path fill="#ffffff" fill-opacity="1" d="M0,128L48,144C96,160,192,192,288,181.3C384,171,480,117,576,117.3C672,117,768,171,864,186.7C960,203,1056,181,1152,149.3C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
+            <svg viewBox="0 0 1440 320"><path fill="#ffb703" d="M0,224L120,202.7C240,181,480,139,720,138.7C960,139,1200,181,1320,202.7L1440,224L1440,320L1320,320C1200,320,960,320,720,320C480,320,240,320,120,320L0,320Z"></path></svg>
         </div>
     </header>
 
-    <!-- Features Section (Inspirasi: Dashboard Page) -->
-    <section id="features" class="py-20 container mx-auto px-6">
-        <div class="text-center mb-16">
-            <h3 class="text-3xl font-bold text-green-800">Layanan Unggulan Kami</h3>
-            <div class="h-1 w-20 bg-yellow-500 mx-auto mt-2"></div>
-        </div>
-        <div class="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
-            <div class="bg-white p-8 rounded-2xl shadow-xl text-center border-b-8 border-green-600 hover:shadow-2xl transition">
-                <div class="bg-yellow-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-chart-line text-4xl text-green-700"></i>
-                </div>
-                <h4 class="text-2xl font-bold mb-4 text-green-800">Realtime Sensor</h4>
-                <p class="text-gray-600 leading-relaxed">Pantau kondisi lahan secara langsung detik demi detik dari mana saja dan kapan saja.</p>
+    <!-- DASHBOARD REALTIME SECTION -->
+    <section id="realtime" class="py-16 container mx-auto px-4 md:px-6">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-black text-app-green mb-2">MONITORING REALTIME</h2>
+            <div class="flex justify-center gap-4 mt-6">
+                <button onclick="switchLoc('pinang')" id="btn-pinang" class="px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-sm">Lahan Pinang Kencana</button>
+                <button onclick="switchLoc('senggarang')" id="btn-senggarang" class="px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-sm">Lahan Senggarang</button>
             </div>
-            <div class="bg-white p-8 rounded-2xl shadow-xl text-center border-b-8 border-yellow-500 hover:shadow-2xl transition">
-                <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-folder-open text-4xl text-yellow-600"></i>
-                </div>
-                <h4 class="text-2xl font-bold mb-4 text-green-800">Riwayat Data</h4>
-                <p class="text-gray-600 leading-relaxed">Simpan dan analisis data historis untuk menentukan strategi pemupukan yang tepat.</p>
-            </div>
+            <p id="live-clock" class="mt-4 font-mono text-app-green font-bold text-lg"></p>
         </div>
-    </section>
 
-    <!-- Interactive Demo Section (Inspirasi: Realtime & Riwayat Data Sensor) -->
-    <section id="demo" class="py-20 bg-green-50">
-        <div class="container mx-auto px-6">
-            <div class="bg-green-800 rounded-3xl p-8 md:p-12 text-white shadow-2xl overflow-hidden">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-10">
-                    <div>
-                        <h3 class="text-3xl font-bold">Dashboard Monitoring</h3>
-                        <p id="current-time" class="text-yellow-400 font-mono text-xl mt-2">Memuat waktu...</p>
-                    </div>
-                    <div class="mt-4 md:mt-0 flex gap-4">
-                        <span class="bg-green-600 px-4 py-2 rounded-lg text-sm"><i class="fas fa-map-marker-alt mr-2"></i>Lahan Pinang Kencana</span>
-                        <span class="bg-green-600 px-4 py-2 rounded-lg text-sm"><i class="fas fa-map-marker-alt mr-2"></i>Lahan Senggarang</span>
-                    </div>
-                </div>
-
-                <!-- Grid Sensor (Interaktif) -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="card-sensor p-6 rounded-xl text-center text-green-900">
-                        <p class="text-xs font-bold uppercase mb-2">Cahaya Matahari</p>
-                        <h5 id="lux-val" class="text-4xl font-black">0.00</h5>
-                        <p class="text-xs mt-2">Lux Intensity</p>
-                    </div>
-                    <div class="card-sensor p-6 rounded-xl text-center text-green-900">
-                        <p class="text-xs font-bold uppercase mb-2">Suhu Udara</p>
-                        <h5 id="temp-val" class="text-4xl font-black">0.00</h5>
-                        <p class="text-xs mt-2">°C Celcius</p>
-                    </div>
-                    <div class="card-sensor p-6 rounded-xl text-center text-green-900">
-                        <p class="text-xs font-bold uppercase mb-2">Kelembaban</p>
-                        <h5 id="hum-val" class="text-4xl font-black">0.00</h5>
-                        <p class="text-xs mt-2">% RH</p>
-                    </div>
-                    <div class="card-sensor p-6 rounded-xl text-center text-green-900">
-                        <p class="text-xs font-bold uppercase mb-2">Tegangan</p>
-                        <h5 id="volt-val" class="text-4xl font-black">0.00</h5>
-                        <p class="text-xs mt-2">Volt DC</p>
-                    </div>
-                </div>
-
-                <!-- Simulated Chart -->
-                <div class="mt-12 bg-white/10 p-6 rounded-2xl border border-white/20">
-                    <h4 class="mb-6 font-bold flex items-center">
-                        <i class="fas fa-history mr-2"></i> Grafik Riwayat (Simulasi)
-                    </h4>
-                    <div class="flex items-end space-x-2 h-40">
-                        <div class="bg-yellow-500 w-full rounded-t" style="height: 40%"></div>
-                        <div class="bg-yellow-500 w-full rounded-t" style="height: 60%"></div>
-                        <div class="bg-yellow-500 w-full rounded-t" style="height: 55%"></div>
-                        <div class="bg-yellow-500 w-full rounded-t" style="height: 80%"></div>
-                        <div class="bg-yellow-500 w-full rounded-t" style="height: 95%"></div>
-                        <div class="bg-yellow-500 w-full rounded-t" style="height: 70%"></div>
-                        <div class="bg-yellow-500 w-full rounded-t" style="height: 85%"></div>
-                    </div>
-                </div>
+        <!-- SENSOR CARDS -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-20">
+            <div class="bg-app-yellow p-4 rounded-2xl text-center shadow-md card-glow">
+                <i class="fas fa-sun text-app-green mb-1"></i>
+                <p class="text-[9px] font-bold uppercase text-app-green/70">Cahaya</p>
+                <div class="text-xl font-black text-app-green"><span id="v-lux">0</span> <span class="text-[10px]">Lux</span></div>
+            </div>
+            <div class="bg-app-yellow p-4 rounded-2xl text-center shadow-md card-glow">
+                <i class="fas fa-thermometer-half text-app-green mb-1"></i>
+                <p class="text-[9px] font-bold uppercase text-app-green/70">Suhu Udara</p>
+                <div class="text-xl font-black text-app-green"><span id="v-temp-u">0</span> <span class="text-[10px]">°C</span></div>
+            </div>
+            <div class="bg-app-yellow p-4 rounded-2xl text-center shadow-md card-glow">
+                <i class="fas fa-wind text-app-green mb-1"></i>
+                <p class="text-[9px] font-bold uppercase text-app-green/70">Lembap Udara</p>
+                <div class="text-xl font-black text-app-green"><span id="v-hum-u">0</span> <span class="text-[10px]">%</span></div>
+            </div>
+            <div class="bg-app-yellow p-4 rounded-2xl text-center shadow-md card-glow">
+                <i class="fas fa-tint text-app-green mb-1"></i>
+                <p class="text-[9px] font-bold uppercase text-app-green/70">Lembap Tanah</p>
+                <div class="text-xl font-black text-app-green"><span id="v-hum-t">0</span> <span class="text-[10px]">%</span></div>
+            </div>
+            <div class="bg-app-yellow p-4 rounded-2xl text-center shadow-md card-glow">
+                <i class="fas fa-mountain text-app-green mb-1"></i>
+                <p class="text-[9px] font-bold uppercase text-app-green/70">Suhu Tanah</p>
+                <div class="text-xl font-black text-app-green"><span id="v-temp-t">0</span> <span class="text-[10px]">°C</span></div>
+            </div>
+            <div class="bg-app-yellow p-4 rounded-2xl text-center shadow-md card-glow">
+                <i class="fas fa-flask text-app-green mb-1"></i>
+                <p class="text-[9px] font-bold uppercase text-app-green/70">pH Tanah</p>
+                <div class="text-xl font-black text-app-green"><span id="v-ph">0</span> <span class="text-[10px]">pH</span></div>
+            </div>
+            <div class="bg-app-yellow p-4 rounded-2xl text-center shadow-md card-glow">
+                <i class="fas fa-car-battery text-app-green mb-1"></i>
+                <p class="text-[9px] font-bold uppercase text-app-green/70">Baterai</p>
+                <div class="text-xl font-black text-app-green"><span id="v-volt">0</span> <span class="text-[10px]">V</span></div>
             </div>
         </div>
     </section>
 
-    <!-- Login Simulation Section -->
-    <section id="login" class="py-20 flex justify-center items-center bg-white">
-        <div class="w-full max-w-md p-8 glass-effect rounded-3xl shadow-2xl border border-green-100">
-            <div class="text-center mb-8">
-                <img src="https://img.icons8.com/color/96/corn.png" alt="logo" class="mx-auto mb-4">
-                <h3 class="text-2xl font-bold text-green-800">Login Member</h3>
+    <!-- HISTORY DATA SECTION (Graphs) -->
+    <section id="history" class="py-16 bg-gray-50 border-t border-gray-200">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-3xl font-black text-app-green uppercase tracking-tight">Riwayat Data</h2>
+                <span class="bg-app-green text-app-yellow px-4 py-1 rounded-full text-xs font-bold">Auto-Sync Active</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Chart Cards -->
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">INTENSITAS CAHAYA</span>
+                        <button onclick="downloadChart('chart-lux')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-lux"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">SUHU UDARA</span>
+                        <button onclick="downloadChart('chart-temp-u')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-temp-u"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">KELEMBAPAN UDARA</span>
+                        <button onclick="downloadChart('chart-hum-u')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-hum-u"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">KELEMBAPAN TANAH</span>
+                        <button onclick="downloadChart('chart-hum-t')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-hum-t"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">SUHU TANAH</span>
+                        <button onclick="downloadChart('chart-temp-t')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-temp-t"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">PH TANAH</span>
+                        <button onclick="downloadChart('chart-ph')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-ph"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">TEGANGAN BATERAI</span>
+                        <button onclick="downloadChart('chart-volt')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-volt"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOGIN PANEL -->
+    <section id="login" class="py-24 bg-white flex justify-center items-center">
+        <div class="w-full max-w-sm p-8 bg-gray-50 rounded-[2.5rem] shadow-2xl relative border border-gray-200">
+            <div class="text-center mb-10">
+                <div class="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner border-2 border-app-green">
+                    <i class="fas fa-lock text-app-green text-xl"></i>
+                </div>
+                <h3 class="text-xl font-black text-app-green uppercase">Akses Sistem</h3>
             </div>
             <form class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Username</label>
-                    <input type="text" placeholder="Masukkan username..." class="w-full px-4 py-3 rounded-xl bg-gray-100 border-transparent focus:border-green-500 focus:bg-white focus:ring-0 text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Password</label>
-                    <input type="password" placeholder="********" class="w-full px-4 py-3 rounded-xl bg-gray-100 border-transparent focus:border-green-500 focus:bg-white focus:ring-0 text-sm">
-                </div>
-                <button type="button" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition duration-200">Sign In</button>
-                <div class="text-center">
-                    <a href="#" class="text-xs text-blue-500 hover:underline">Forgot your password?</a>
-                </div>
+                <input type="text" placeholder="Username" class="w-full px-5 py-3 bg-white rounded-2xl border-gray-200 focus:ring-2 focus:ring-app-green outline-none text-sm transition">
+                <input type="password" placeholder="Password" class="w-full px-5 py-3 bg-white rounded-2xl border-gray-200 focus:ring-2 focus:ring-app-green outline-none text-sm transition">
+                <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-lg transition uppercase text-sm tracking-widest mt-4">Login</button>
             </form>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-green-900 text-white py-10 text-center">
-        <p>&copy; 2024 CornSense - Smart Agriculture System. Dibuat untuk Monitoring Masa Depan.</p>
+    <!-- FOOTER -->
+    <footer class="bg-app-green text-white py-10 text-center border-t-8 border-app-yellow">
+        <p class="font-bold opacity-40 uppercase tracking-[0.3em] text-[10px]">&copy; 2024 CORNSENSE SMART AGRICULTURE SYSTEM</p>
     </footer>
 
     <script>
-        // Update Waktu Realtime
+        let currentLoc = 'pinang';
+        const chartInstances = {};
+        const MAX_DATA_POINTS = 15;
+        
+        // Label untuk 15 data terakhir (misal: Data 1 - Data 15)
+        const labels = Array.from({length: MAX_DATA_POINTS}, (_, i) => `D-${MAX_DATA_POINTS - i}`);
+
+        function switchLoc(loc) {
+            currentLoc = loc;
+            document.getElementById('btn-pinang').className = loc === 'pinang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-sm' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-sm';
+            document.getElementById('btn-senggarang').className = loc === 'senggarang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-sm' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-sm';
+            resetCharts();
+        }
+
+        function createChart(id, label, color, min, max) {
+            const ctx = document.getElementById(id).getContext('2d');
+            // Data awal: isi dengan nilai random sebanyak 15
+            const initialData = Array.from({length: MAX_DATA_POINTS}, () => Math.random() * (max - min) + min);
+            
+            chartInstances[id] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: initialData,
+                        borderColor: color,
+                        backgroundColor: color + '15',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { display: true, grid: { color: '#f3f4f6' } },
+                        x: { display: true, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function updateRealtimeData() {
+            const multiplier = currentLoc === 'pinang' ? 1 : 1.2;
+            
+            const sensors = {
+                'lux': { id: 'v-lux', chart: 'chart-lux', val: (400 + Math.random() * 200) * multiplier },
+                'temp_u': { id: 'v-temp-u', chart: 'chart-temp-u', val: (28 + Math.random() * 4) * multiplier },
+                'hum_u': { id: 'v-hum-u', chart: 'chart-hum-u', val: 60 + Math.random() * 10 },
+                'hum_t': { id: 'v-hum-t', chart: 'chart-hum-t', val: 40 + Math.random() * 20 },
+                'temp_t': { id: 'v-temp-t', chart: 'chart-temp-t', val: 25 + Math.random() * 3 },
+                'ph': { id: 'v-ph', chart: 'chart-ph', val: 6.0 + Math.random() * 1 },
+                'volt': { id: 'v-volt', chart: 'chart-volt', val: 12.0 + Math.random() * 0.5 }
+            };
+
+            // Update Angka dan Geser Chart
+            Object.keys(sensors).forEach(key => {
+                const s = sensors[key];
+                const fixedVal = key === 'volt' || key === 'ph' ? s.val.toFixed(2) : s.val.toFixed(0);
+                document.getElementById(s.id).innerText = fixedVal;
+
+                // Update Chart: Hapus data paling kiri, tambah data baru di kanan (selalu 15)
+                const chart = chartInstances[s.chart];
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[0].data.push(parseFloat(s.val));
+                chart.update('none'); // Update tanpa animasi agar ringan
+            });
+        }
+
+        function resetCharts() {
+            Object.values(chartInstances).forEach(chart => {
+                chart.data.datasets[0].data = Array.from({length: MAX_DATA_POINTS}, () => 0);
+                chart.update();
+            });
+        }
+
+        function downloadChart(id) {
+            const link = document.createElement('a');
+            link.download = `report_${id}_${currentLoc}.png`;
+            link.href = document.getElementById(id).toDataURL('image/png');
+            link.click();
+        }
+
         function updateTime() {
             const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            document.getElementById('current-time').innerText = now.toLocaleDateString('id-ID', options);
+            document.getElementById('live-clock').innerText = now.toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
         }
 
-        // Simulasi Data Sensor Berubah-ubah
-        function updateSensors() {
-            document.getElementById('lux-val').innerText = (Math.random() * 100).toFixed(2);
-            document.getElementById('temp-val').innerText = (25 + Math.random() * 10).toFixed(2);
-            document.getElementById('hum-val').innerText = (60 + Math.random() * 20).toFixed(2);
-            document.getElementById('volt-val').innerText = (11 + Math.random() * 2).toFixed(2);
-        }
-
-        setInterval(updateTime, 1000);
-        setInterval(updateSensors, 3000);
-        updateTime();
-        updateSensors();
+        window.onload = () => {
+            updateTime(); 
+            setInterval(updateTime, 1000);
+            
+            // Init 7 Grafis dengan range nilai simulasi yang berbeda
+            createChart('chart-lux', 'Lux', '#ffb703', 300, 600);
+            createChart('chart-temp-u', 'Suhu Udara', '#ef4444', 27, 34);
+            createChart('chart-hum-u', 'Lembap Udara', '#3b82f6', 50, 80);
+            createChart('chart-hum-t', 'Lembap Tanah', '#064e3b', 30, 60);
+            createChart('chart-temp-t', 'Suhu Tanah', '#92400e', 24, 28);
+            createChart('chart-ph', 'pH Tanah', '#8b5cf6', 5.5, 7.5);
+            createChart('chart-volt', 'Voltase', '#10b981', 11.5, 12.8);
+            
+            // Jalankan update realtime setiap 3 detik
+            setInterval(updateRealtimeData, 3000);
+            updateRealtimeData();
+        };
     </script>
 </body>
 </html>

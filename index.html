@@ -3,17 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CornSense - Monitoring IoT Lahan Jagung</title>
+    <title>CornSense - Monitoring Pertanian Pintar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root { --primary-green: #2d6a4f; --accent-yellow: #ffb703; }
+      <style>
+        :root {
+            --primary-green: #2d6a4f;
+            --accent-yellow: #ffb703;
+        }
         body { background-color: #f8fafc; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         .bg-app-green { background-color: #2d6a4f; }
         .bg-app-yellow { background-color: #ffb703; }
         .text-app-yellow { color: #ffb703; }
-        .card-glow:hover { box-shadow: 0 0 15px rgba(255, 183, 3, 0.4); transform: translateY(-2px); transition: 0.3s; }
+        
+        .card-glow:hover {
+            box-shadow: 0 0 20px rgba(255, 183, 3, 0.4);
+            transform: translateY(-2px);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2d6a4f; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -109,29 +118,102 @@
                 </button>
             </div>
 
-            <!-- Graphs Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-lux" height="180"></canvas></div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-temp-u" height="180"></canvas></div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-hum-u" height="180"></canvas></div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-hum-t" height="180"></canvas></div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-temp-t" height="180"></canvas></div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-ph" height="180"></canvas></div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-volt" height="180"></canvas></div>
+ <!-- HISTORY DATA SECTION (Graphs) -->
+    <section id="history" class="py-16 bg-gray-50 border-t border-gray-200">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-3xl font-black text-app-green uppercase tracking-tight">Riwayat Data (15 Data Terakhir)</h2>
+                <span class="bg-app-green text-app-yellow px-4 py-1 rounded-full text-xs font-bold">Auto-Sync Active</span>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Chart Cards -->
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">INTENSITAS CAHAYA</span>
+                        <button onclick="downloadChart('chart-lux')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-lux"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">SUHU UDARA</span>
+                        <button onclick="downloadChart('chart-temp-u')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-temp-u"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">KELEMBAPAN UDARA</span>
+                        <button onclick="downloadChart('chart-hum-u')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-hum-u"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">KELEMBAPAN TANAH</span>
+                        <button onclick="downloadChart('chart-hum-t')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-hum-t"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">SUHU TANAH</span>
+                        <button onclick="downloadChart('chart-temp-t')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-temp-t"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">PH TANAH</span>
+                        <button onclick="downloadChart('chart-ph')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-ph"></canvas></div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <span class="font-bold text-app-green text-xs">TEGANGAN BATERAI</span>
+                        <button onclick="downloadChart('chart-volt')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
+                    </div>
+                    <div class="h-48"><canvas id="chart-volt"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOGIN PANEL -->
+    <section id="login" class="py-24 bg-white flex justify-center items-center">
+        <div class="w-full max-w-sm p-8 bg-gray-50 rounded-[2.5rem] shadow-2xl relative border border-gray-200">
+            <div class="text-center mb-10">
+                <div class="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner border-2 border-app-green">
+                    <i class="fas fa-lock text-app-green text-xl"></i>
+                </div>
+                <h3 class="text-xl font-black text-app-green uppercase">Akses Sistem</h3>
+            </div>
+            <form class="space-y-4">
+                <input type="text" placeholder="Username" class="w-full px-5 py-3 bg-white rounded-2xl border-gray-200 focus:ring-2 focus:ring-app-green outline-none text-sm transition">
+                <input type="password" placeholder="Password" class="w-full px-5 py-3 bg-white rounded-2xl border-gray-200 focus:ring-2 focus:ring-app-green outline-none text-sm transition">
+                <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-lg transition uppercase text-sm tracking-widest mt-4">Login</button>
+            </form>
         </div>
     </section>
 
     <!-- FOOTER -->
     <footer class="bg-app-green text-white py-10 text-center border-t-8 border-app-yellow">
-        <p class="font-bold opacity-30 uppercase tracking-[0.2em] text-[9px]">&copy; 2026 CORNSENSE - SMART AGRICULTURE DASHBOARD</p>
+        <p class="font-bold opacity-30 uppercase tracking-[0.2em] text-[9px]">&copy; 2026 CORNSENSE - SMART AGRICULTURE</p>
     </footer>
 
     <script>
         let currentLoc = 'pinang';
         const MAX_POINTS = 15;
         const chartInstances = {};
-        let dataLog = []; // Penampung data untuk Excel
+        let dataLog = []; 
 
         function switchLoc(loc) {
             currentLoc = loc;

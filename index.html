@@ -203,7 +203,7 @@
 
     <!-- FOOTER -->
     <footer class="bg-app-green text-white py-10 text-center border-t-8 border-app-yellow">
-        <p class="font-bold opacity-40 uppercase tracking-[0.3em] text-[10px]">&copy; 2024 CORNSENSE SMART AGRICULTURE SYSTEM</p>
+        <p class="font-bold opacity-40 uppercase tracking-[0.3em] text-[10px]">&copy; 2026 CORNSENSE SMART AGRICULTURE SYSTEM</p>
     </footer>
 
     <script>
@@ -211,110 +211,123 @@
         const chartInstances = {};
         const MAX_DATA_POINTS = 15;
         
-        // Label untuk 15 data terakhir (misal: Data 1 - Data 15)
-        const labels = Array.from({length: MAX_DATA_POINTS}, (_, i) => `D-${MAX_DATA_POINTS - i}`);
+        // Penampung Data untuk CSV (Log)
+        let dataHistoryLog = [];
 
         function switchLoc(loc) {
             currentLoc = loc;
             document.getElementById('btn-pinang').className = loc === 'pinang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-sm' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-sm';
             document.getElementById('btn-senggarang').className = loc === 'senggarang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-sm' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-sm';
-            resetCharts();
         }
 
         function createChart(id, label, color, min, max) {
             const ctx = document.getElementById(id).getContext('2d');
-            // Data awal: isi dengan nilai random sebanyak 15
-            const initialData = Array.from({length: MAX_DATA_POINTS}, () => Math.random() * (max - min) + min);
-            
             chartInstances[id] = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: Array(MAX_DATA_POINTS).fill(''),
                     datasets: [{
                         label: label,
-                        data: initialData,
+                        data: Array(MAX_DATA_POINTS).fill(0),
                         borderColor: color,
-                        backgroundColor: color + '15',
-                        borderWidth: 2,
-                        pointRadius: 2,
-                        fill: true,
-                        tension: 0.3
+                        backgroundColor: color + '10',
+                        fill: true, tension: 0.4, pointRadius: 0
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { display: true, grid: { color: '#f3f4f6' } },
-                        x: { display: true, grid: { display: false } }
-                    }
-                }
+                options: { responsive: true, plugins: { legend: { labels: { font: { weight: 'bold', size: 10 } } } } }
             });
         }
 
-        function updateRealtimeData() {
+        function updateData() {
+            const time = new Date().toLocaleTimeString();
             const multiplier = currentLoc === 'pinang' ? 1 : 1.2;
             
-            const sensors = {
-                'lux': { id: 'v-lux', chart: 'chart-lux', val: (400 + Math.random() * 200) * multiplier },
-                'temp_u': { id: 'v-temp-u', chart: 'chart-temp-u', val: (28 + Math.random() * 4) * multiplier },
-                'hum_u': { id: 'v-hum-u', chart: 'chart-hum-u', val: 60 + Math.random() * 10 },
-                'hum_t': { id: 'v-hum-t', chart: 'chart-hum-t', val: 40 + Math.random() * 20 },
-                'temp_t': { id: 'v-temp-t', chart: 'chart-temp-t', val: 25 + Math.random() * 3 },
-                'ph': { id: 'v-ph', chart: 'chart-ph', val: 6.0 + Math.random() * 1 },
-                'volt': { id: 'v-volt', chart: 'chart-volt', val: 12.0 + Math.random() * 0.5 }
+            const vals = {
+                lux: (400 + Math.random() * 200) * multiplier,
+                tempU: (28 + Math.random() * 5) * multiplier,
+                humU: 60 + Math.random() * 10,
+                humT: 40 + Math.random() * 20,
+                tempT: 25 + Math.random() * 3,
+                ph: 6.0 + Math.random() * 1,
+                volt: 12.0 + Math.random() * 0.5
             };
 
-            // Update Angka dan Geser Chart
-            Object.keys(sensors).forEach(key => {
-                const s = sensors[key];
-                const fixedVal = key === 'volt' || key === 'ph' ? s.val.toFixed(2) : s.val.toFixed(0);
-                document.getElementById(s.id).innerText = fixedVal;
+            // Update UI
+            document.getElementById('v-lux').innerText = vals.lux.toFixed(0);
+            document.getElementById('v-temp-u').innerText = vals.tempU.toFixed(1);
+            document.getElementById('v-hum-u').innerText = vals.humU.toFixed(0);
+            document.getElementById('v-hum-t').innerText = vals.humT.toFixed(0);
+            document.getElementById('v-temp-t').innerText = vals.tempT.toFixed(1);
+            document.getElementById('v-ph').innerText = vals.ph.toFixed(2);
+            document.getElementById('v-volt').innerText = vals.volt.toFixed(2);
 
-                // Update Chart: Hapus data paling kiri, tambah data baru di kanan (selalu 15)
-                const chart = chartInstances[s.chart];
+            // Simpan ke Log untuk CSV
+            dataHistoryLog.push({
+                Waktu: new Date().toLocaleString(),
+                Lokasi: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
+                Cahaya_Lux: vals.lux.toFixed(0),
+                Suhu_Udara_C: vals.tempU.toFixed(1),
+                Lembap_Udara_Persen: vals.humU.toFixed(0),
+                Lembap_Tanah_Persen: vals.humT.toFixed(0),
+                Suhu_Tanah_C: vals.tempT.toFixed(1),
+                pH_Tanah: vals.ph.toFixed(2),
+                Tegangan_V: vals.volt.toFixed(2)
+            });
+
+            // Batasi log agar tidak terlalu berat di memori browser (misal 500 baris terakhir)
+            if(dataHistoryLog.length > 500) dataHistoryLog.shift();
+
+            // Update Charts (15 data terakhir)
+            const map = { 'chart-lux': vals.lux, 'chart-temp-u': vals.tempU, 'chart-hum-u': vals.humU, 'chart-hum-t': vals.humT, 'chart-temp-t': vals.tempT, 'chart-ph': vals.ph, 'chart-volt': vals.volt };
+            Object.keys(chartInstances).forEach(id => {
+                const chart = chartInstances[id];
                 chart.data.datasets[0].data.shift();
-                chart.data.datasets[0].data.push(parseFloat(s.val));
-                chart.update('none'); // Update tanpa animasi agar ringan
+                chart.data.datasets[0].data.push(map[id]);
+                chart.update('none');
             });
         }
 
-        function resetCharts() {
-            Object.values(chartInstances).forEach(chart => {
-                chart.data.datasets[0].data = Array.from({length: MAX_DATA_POINTS}, () => 0);
-                chart.update();
-            });
-        }
+        // FUNGSI EXPORT CSV (Excel Friendly)
+        function exportCSV() {
+            if (dataHistoryLog.length === 0) {
+                alert("Belum ada data untuk diunduh!");
+                return;
+            }
 
-        function downloadChart(id) {
-            const link = document.createElement('a');
-            link.download = `report_${id}_${currentLoc}.png`;
-            link.href = document.getElementById(id).toDataURL('image/png');
+            // Header kolom
+            const headers = Object.keys(dataHistoryLog[0]).join(",");
+            
+            // Baris data
+            const rows = dataHistoryLog.map(obj => 
+                Object.values(obj).join(",")
+            ).join("\n");
+
+            const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers + "\n" + rows;
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Log_CornSense_${currentLoc}_${new Date().getTime()}.csv`);
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         }
 
         function updateTime() {
-            const now = new Date();
-            document.getElementById('live-clock').innerText = now.toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+            document.getElementById('live-clock').innerText = new Date().toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
         }
 
         window.onload = () => {
-            updateTime(); 
-            setInterval(updateTime, 1000);
-            
-            // Init 7 Grafis dengan range nilai simulasi yang berbeda
-            createChart('chart-lux', 'Lux', '#ffb703', 300, 600);
-            createChart('chart-temp-u', 'Suhu Udara', '#ef4444', 27, 34);
-            createChart('chart-hum-u', 'Lembap Udara', '#3b82f6', 50, 80);
-            createChart('chart-hum-t', 'Lembap Tanah', '#064e3b', 30, 60);
-            createChart('chart-temp-t', 'Suhu Tanah', '#92400e', 24, 28);
+            updateTime(); setInterval(updateTime, 1000);
+            createChart('chart-lux', 'Cahaya (Lux)', '#ffb703', 300, 600);
+            createChart('chart-temp-u', 'Suhu Udara (°C)', '#ef4444', 27, 34);
+            createChart('chart-hum-u', 'Lembap Udara (%)', '#3b82f6', 50, 80);
+            createChart('chart-hum-t', 'Lembap Tanah (%)', '#064e3b', 30, 60);
+            createChart('chart-temp-t', 'Suhu Tanah (°C)', '#92400e', 24, 28);
             createChart('chart-ph', 'pH Tanah', '#8b5cf6', 5.5, 7.5);
-            createChart('chart-volt', 'Voltase', '#10b981', 11.5, 12.8);
+            createChart('chart-volt', 'Voltase (V)', '#10b981', 11.5, 12.8);
             
-            // Jalankan update realtime setiap 3 detik
-            setInterval(updateRealtimeData, 3000);
-            updateRealtimeData();
+            setInterval(updateData, 3000);
+            updateData();
         };
     </script>
 </body>

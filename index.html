@@ -3,26 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CornSense - Monitoring Pertanian Pintar</title>
+    <title>CornSense - Monitoring IoT Lahan Jagung</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary-green: #2d6a4f;
-            --accent-yellow: #ffb703;
-        }
+        :root { --primary-green: #2d6a4f; --accent-yellow: #ffb703; }
         body { background-color: #f8fafc; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         .bg-app-green { background-color: #2d6a4f; }
         .bg-app-yellow { background-color: #ffb703; }
         .text-app-yellow { color: #ffb703; }
-        
-        .card-glow:hover {
-            box-shadow: 0 0 20px rgba(255, 183, 3, 0.4);
-            transform: translateY(-2px);
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2d6a4f; border-radius: 10px; }
+        .card-glow:hover { box-shadow: 0 0 15px rgba(255, 183, 3, 0.4); transform: translateY(-2px); transition: 0.3s; }
     </style>
 </head>
 <body>
@@ -35,10 +26,10 @@
                 <span class="text-2xl font-black tracking-tighter">CORNSENSE</span>
             </div>
             <div class="hidden md:flex gap-6 font-bold text-[11px] uppercase tracking-widest items-center">
-                <a href="#home" class="hover:text-app-yellow transition">Beranda</a>
-                <a href="#realtime" class="hover:text-app-yellow transition">Realtime Sensor</a>
-                <a href="#history" class="hover:text-app-yellow transition">Riwayat Data</a>
-                <a href="#login" class="bg-app-yellow text-app-green px-5 py-2 rounded-full hover:bg-white transition ml-4">Masuk</a>
+                <a href="#home" class="hover:text-app-yellow">Beranda</a>
+                <a href="#realtime" class="hover:text-app-yellow">Realtime Sensor</a>
+                <a href="#history" class="hover:text-app-yellow">Riwayat Data</a>
+                <a href="#login" class="bg-app-yellow text-app-green px-5 py-2 rounded-full hover:bg-white ml-4">Masuk</a>
             </div>
         </div>
     </nav>
@@ -48,29 +39,22 @@
         <div class="container mx-auto px-6 flex flex-col md:flex-row items-center">
             <div class="md:w-1/2 text-white z-10">
                 <h1 class="text-5xl md:text-7xl font-black leading-none mb-6">PEMANTAUAN <br><span class="text-app-yellow">LAHAN JAGUNG</span></h1>
-                <p class="text-lg opacity-80 mb-8 max-w-lg">Sistem otomasi berbasis IoT untuk meningkatkan efisiensi dan hasil panen melalui data sensor presisi tinggi.</p>
-                <div class="flex gap-4">
-                    <a href="#realtime" class="inline-block bg-app-yellow text-app-green font-extrabold px-8 py-3 rounded-xl text-md hover:scale-105 transition shadow-2xl">MULAI PANTAU</a>
-                </div>
+                <p class="text-lg opacity-80 mb-8 max-w-lg">Sistem monitoring berbasis IoT untuk meningkatkan efisiensi dan hasil panel melalui data sensor presisi tinggi.</p>
+                <a href="#realtime" class="inline-block bg-app-yellow text-app-green font-extrabold px-8 py-3 rounded-xl hover:scale-105 transition shadow-2xl uppercase text-sm">Lihat Data</a>
             </div>
             <div class="md:w-1/2 mt-12 md:mt-0 flex justify-center relative">
-                <div class="absolute inset-0 bg-yellow-400 blur-[100px] opacity-20"></div>
-                <!-- Menggunakan Ikon Jagung yang Solid -->
-                <img src="https://img.icons8.com/color/512/corn.png" alt="Corn Illustration" class="w-64 md:w-80 animate-bounce transition-all z-10" style="animation-duration: 4s;">
+                <img src="https://img.icons8.com/color/512/corn.png" alt="Corn" class="w-64 md:w-80 animate-bounce z-10" style="animation-duration: 5s;">
             </div>
-        </div>
-        <div class="absolute bottom-0 left-0 w-full opacity-10">
-            <svg viewBox="0 0 1440 320"><path fill="#ffb703" d="M0,224L120,202.7C240,181,480,139,720,138.7C960,139,1200,181,1320,202.7L1440,224L1440,320L1320,320C1200,320,960,320,720,320C480,320,240,320,120,320L0,320Z"></path></svg>
         </div>
     </header>
 
-    <!-- DASHBOARD REALTIME SECTION -->
-    <section id="realtime" class="py-16 container mx-auto px-4 md:px-6">
+    <!-- REALTIME SECTION -->
+    <section id="realtime" class="py-16 container mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-black text-app-green mb-2">MONITORING REALTIME</h2>
+            <h2 class="text-3xl font-black text-app-green mb-2 uppercase">Monitoring Realtime</h2>
             <div class="flex justify-center gap-4 mt-6">
-                <button onclick="switchLoc('pinang')" id="btn-pinang" class="px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-sm">Lahan Pinang Kencana</button>
-                <button onclick="switchLoc('senggarang')" id="btn-senggarang" class="px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-sm">Lahan Senggarang</button>
+                <button onclick="switchLoc('pinang')" id="btn-pinang" class="px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-xs">Lahan Pinang Kencana</button>
+                <button onclick="switchLoc('senggarang')" id="btn-senggarang" class="px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-xs">Lahan Senggarang</button>
             </div>
             <p id="live-clock" class="mt-4 font-mono text-app-green font-bold text-lg"></p>
         </div>
@@ -115,144 +99,99 @@
         </div>
     </section>
 
-    <!-- HISTORY DATA SECTION (Graphs) -->
+    <!-- HISTORY SECTION -->
     <section id="history" class="py-16 bg-gray-50 border-t border-gray-200">
-        <div class="container mx-auto px-4 md:px-6">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-black text-app-green uppercase tracking-tight">Riwayat Data</h2>
-                <span class="bg-app-green text-app-yellow px-4 py-1 rounded-full text-xs font-bold">Auto-Sync Active</span>
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                <h2 class="text-2xl font-black text-app-green uppercase tracking-tight">Riwayat Data</h2>
+                <button onclick="exportCSV()" class="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2 transition">
+                    <i class="fas fa-file-excel text-lg"></i> Export Log Excel (CSV)
+                </button>
             </div>
 
+            <!-- Graphs Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Chart Cards -->
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <span class="font-bold text-app-green text-xs">INTENSITAS CAHAYA</span>
-                        <button onclick="downloadChart('chart-lux')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
-                    </div>
-                    <div class="h-48"><canvas id="chart-lux"></canvas></div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <span class="font-bold text-app-green text-xs">SUHU UDARA</span>
-                        <button onclick="downloadChart('chart-temp-u')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
-                    </div>
-                    <div class="h-48"><canvas id="chart-temp-u"></canvas></div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <span class="font-bold text-app-green text-xs">KELEMBAPAN UDARA</span>
-                        <button onclick="downloadChart('chart-hum-u')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
-                    </div>
-                    <div class="h-48"><canvas id="chart-hum-u"></canvas></div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <span class="font-bold text-app-green text-xs">KELEMBAPAN TANAH</span>
-                        <button onclick="downloadChart('chart-hum-t')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
-                    </div>
-                    <div class="h-48"><canvas id="chart-hum-t"></canvas></div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <span class="font-bold text-app-green text-xs">SUHU TANAH</span>
-                        <button onclick="downloadChart('chart-temp-t')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
-                    </div>
-                    <div class="h-48"><canvas id="chart-temp-t"></canvas></div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <span class="font-bold text-app-green text-xs">PH TANAH</span>
-                        <button onclick="downloadChart('chart-ph')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
-                    </div>
-                    <div class="h-48"><canvas id="chart-ph"></canvas></div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <span class="font-bold text-app-green text-xs">TEGANGAN BATERAI</span>
-                        <button onclick="downloadChart('chart-volt')" class="text-gray-400 hover:text-app-green"><i class="fas fa-cloud-download-alt"></i></button>
-                    </div>
-                    <div class="h-48"><canvas id="chart-volt"></canvas></div>
-                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-lux" height="180"></canvas></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-temp-u" height="180"></canvas></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-hum-u" height="180"></canvas></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-hum-t" height="180"></canvas></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-temp-t" height="180"></canvas></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-ph" height="180"></canvas></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border"><canvas id="chart-volt" height="180"></canvas></div>
             </div>
-        </div>
-    </section>
-
-    <!-- LOGIN PANEL -->
-    <section id="login" class="py-24 bg-white flex justify-center items-center">
-        <div class="w-full max-w-sm p-8 bg-gray-50 rounded-[2.5rem] shadow-2xl relative border border-gray-200">
-            <div class="text-center mb-10">
-                <div class="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner border-2 border-app-green">
-                    <i class="fas fa-lock text-app-green text-xl"></i>
-                </div>
-                <h3 class="text-xl font-black text-app-green uppercase">Akses Sistem</h3>
-            </div>
-            <form class="space-y-4">
-                <input type="text" placeholder="Username" class="w-full px-5 py-3 bg-white rounded-2xl border-gray-200 focus:ring-2 focus:ring-app-green outline-none text-sm transition">
-                <input type="password" placeholder="Password" class="w-full px-5 py-3 bg-white rounded-2xl border-gray-200 focus:ring-2 focus:ring-app-green outline-none text-sm transition">
-                <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-lg transition uppercase text-sm tracking-widest mt-4">Login</button>
-            </form>
         </div>
     </section>
 
     <!-- FOOTER -->
     <footer class="bg-app-green text-white py-10 text-center border-t-8 border-app-yellow">
-        <p class="font-bold opacity-40 uppercase tracking-[0.3em] text-[10px]">&copy; 2026 CORNSENSE SMART AGRICULTURE SYSTEM</p>
+        <p class="font-bold opacity-30 uppercase tracking-[0.2em] text-[9px]">&copy; 2026 CORNSENSE - SMART AGRICULTURE DASHBOARD</p>
     </footer>
 
     <script>
         let currentLoc = 'pinang';
+        const MAX_POINTS = 15;
         const chartInstances = {};
-        const MAX_DATA_POINTS = 15;
-        
-        // Penampung Data untuk CSV (Log)
-        let dataHistoryLog = [];
+        let dataLog = []; // Penampung data untuk Excel
 
         function switchLoc(loc) {
             currentLoc = loc;
-            document.getElementById('btn-pinang').className = loc === 'pinang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-sm' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-sm';
-            document.getElementById('btn-senggarang').className = loc === 'senggarang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-sm' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-sm';
+            document.getElementById('btn-pinang').className = loc === 'pinang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-xs' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-xs';
+            document.getElementById('btn-senggarang').className = loc === 'senggarang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-xs' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-xs';
+            
+            // Reset grafik saat pindah lokasi
+            Object.values(chartInstances).forEach(chart => {
+                chart.data.labels = Array(MAX_POINTS).fill('--:--:--');
+                chart.data.datasets[0].data = Array(MAX_POINTS).fill(0);
+                chart.update();
+            });
         }
 
-        function createChart(id, label, color, min, max) {
+        function initChart(id, label, color) {
             const ctx = document.getElementById(id).getContext('2d');
             chartInstances[id] = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: Array(MAX_DATA_POINTS).fill(''),
+                    labels: Array(MAX_POINTS).fill('--:--:--'), // Sumbu X Waktu
                     datasets: [{
                         label: label,
-                        data: Array(MAX_DATA_POINTS).fill(0),
+                        data: Array(MAX_POINTS).fill(0),
                         borderColor: color,
-                        backgroundColor: color + '10',
-                        fill: true, tension: 0.4, pointRadius: 0
+                        backgroundColor: color + '15',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: color,
+                        fill: true,
+                        tension: 0.3
                     }]
                 },
-                options: { responsive: true, plugins: { legend: { labels: { font: { weight: 'bold', size: 10 } } } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { font: { size: 10, weight: 'bold' } } } },
+                    scales: {
+                        x: { ticks: { font: { size: 8 } }, grid: { display: false } },
+                        y: { ticks: { font: { size: 9 } }, grid: { color: '#f1f1f1' } }
+                    }
+                }
             });
         }
 
-        function updateData() {
-            const time = new Date().toLocaleTimeString();
-            const multiplier = currentLoc === 'pinang' ? 1 : 1.2;
+        function updateSensors() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+            const multiplier = currentLoc === 'pinang' ? 1 : 1.15;
             
             const vals = {
-                lux: (400 + Math.random() * 200) * multiplier,
-                tempU: (28 + Math.random() * 5) * multiplier,
-                humU: 60 + Math.random() * 10,
-                humT: 40 + Math.random() * 20,
-                tempT: 25 + Math.random() * 3,
-                ph: 6.0 + Math.random() * 1,
-                volt: 12.0 + Math.random() * 0.5
+                lux: (450 + Math.random() * 150) * multiplier,
+                tempU: (28 + Math.random() * 4) * multiplier,
+                humU: 65 + Math.random() * 10,
+                humT: 45 + Math.random() * 15,
+                tempT: 26 + Math.random() * 2,
+                ph: 6.2 + Math.random() * 0.8,
+                volt: 12.2 + Math.random() * 0.4
             };
 
-            // Update UI
+            // Update Kartu Angka
             document.getElementById('v-lux').innerText = vals.lux.toFixed(0);
             document.getElementById('v-temp-u').innerText = vals.tempU.toFixed(1);
             document.getElementById('v-hum-u').innerText = vals.humU.toFixed(0);
@@ -261,55 +200,50 @@
             document.getElementById('v-ph').innerText = vals.ph.toFixed(2);
             document.getElementById('v-volt').innerText = vals.volt.toFixed(2);
 
-            // Simpan ke Log untuk CSV
-            dataHistoryLog.push({
-                Waktu: new Date().toLocaleString(),
-                Lokasi: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
+            // Simpan ke Log Excel
+            dataLog.push({
+                Timestamp: now.toLocaleString(),
+                Lahan: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
                 Cahaya_Lux: vals.lux.toFixed(0),
-                Suhu_Udara_C: vals.tempU.toFixed(1),
-                Lembap_Udara_Persen: vals.humU.toFixed(0),
-                Lembap_Tanah_Persen: vals.humT.toFixed(0),
-                Suhu_Tanah_C: vals.tempT.toFixed(1),
-                pH_Tanah: vals.ph.toFixed(2),
-                Tegangan_V: vals.volt.toFixed(2)
+                SuhuUdara_C: vals.tempU.toFixed(1),
+                LembapUdara_P: vals.humU.toFixed(0),
+                LembapTanah_P: vals.humT.toFixed(0),
+                SuhuTanah_C: vals.tempT.toFixed(1),
+                pH: vals.ph.toFixed(2),
+                Baterai_V: vals.volt.toFixed(2)
             });
+            if(dataLog.length > 1000) dataLog.shift(); // Batasi log agar tidak lemot
 
-            // Batasi log agar tidak terlalu berat di memori browser (misal 500 baris terakhir)
-            if(dataHistoryLog.length > 500) dataHistoryLog.shift();
+            // Update Sumbu Waktu pada Grafik
+            const chartMapping = {
+                'chart-lux': vals.lux, 'chart-temp-u': vals.tempU, 
+                'chart-hum-u': vals.humU, 'chart-hum-t': vals.humT,
+                'chart-temp-t': vals.tempT, 'chart-ph': vals.ph, 'chart-volt': vals.volt
+            };
 
-            // Update Charts (15 data terakhir)
-            const map = { 'chart-lux': vals.lux, 'chart-temp-u': vals.tempU, 'chart-hum-u': vals.humU, 'chart-hum-t': vals.humT, 'chart-temp-t': vals.tempT, 'chart-ph': vals.ph, 'chart-volt': vals.volt };
-            Object.keys(chartInstances).forEach(id => {
+            Object.keys(chartMapping).forEach(id => {
                 const chart = chartInstances[id];
+                // Geser Label Waktu
+                chart.data.labels.shift();
+                chart.data.labels.push(timeStr);
+                // Geser Data
                 chart.data.datasets[0].data.shift();
-                chart.data.datasets[0].data.push(map[id]);
-                chart.update('none');
+                chart.data.datasets[0].data.push(chartMapping[id]);
+                chart.update('none'); // Update tanpa animasi agar ringan
             });
         }
 
-        // FUNGSI EXPORT CSV (Excel Friendly)
         function exportCSV() {
-            if (dataHistoryLog.length === 0) {
-                alert("Belum ada data untuk diunduh!");
-                return;
-            }
-
-            // Header kolom
-            const headers = Object.keys(dataHistoryLog[0]).join(",");
-            
-            // Baris data
-            const rows = dataHistoryLog.map(obj => 
-                Object.values(obj).join(",")
-            ).join("\n");
-
+            if(dataLog.length === 0) return alert("Belum ada data!");
+            const headers = Object.keys(dataLog[0]).join(",");
+            const rows = dataLog.map(obj => Object.values(obj).join(",")).join("\n");
             const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers + "\n" + rows;
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Log_CornSense_${currentLoc}_${new Date().getTime()}.csv`);
+            link.setAttribute("download", `Log_CornSense_${new Date().getTime()}.csv`);
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
         }
 
         function updateTime() {
@@ -318,16 +252,18 @@
 
         window.onload = () => {
             updateTime(); setInterval(updateTime, 1000);
-            createChart('chart-lux', 'Cahaya (Lux)', '#ffb703', 300, 600);
-            createChart('chart-temp-u', 'Suhu Udara (°C)', '#ef4444', 27, 34);
-            createChart('chart-hum-u', 'Lembap Udara (%)', '#3b82f6', 50, 80);
-            createChart('chart-hum-t', 'Lembap Tanah (%)', '#064e3b', 30, 60);
-            createChart('chart-temp-t', 'Suhu Tanah (°C)', '#92400e', 24, 28);
-            createChart('chart-ph', 'pH Tanah', '#8b5cf6', 5.5, 7.5);
-            createChart('chart-volt', 'Voltase (V)', '#10b981', 11.5, 12.8);
             
-            setInterval(updateData, 3000);
-            updateData();
+            // Inisialisasi 7 Grafik
+            initChart('chart-lux', 'Intensitas Cahaya (Lux)', '#ffb703');
+            initChart('chart-temp-u', 'Suhu Udara (°C)', '#ef4444');
+            initChart('chart-hum-u', 'Kelembapan Udara (%)', '#3b82f6');
+            initChart('chart-hum-t', 'Kelembapan Tanah (%)', '#064e3b');
+            initChart('chart-temp-t', 'Suhu Tanah (°C)', '#92400e');
+            initChart('chart-ph', 'pH Tanah', '#8b5cf6');
+            initChart('chart-volt', 'Tegangan Baterai (V)', '#10b981');
+
+            setInterval(updateSensors, 3000);
+            updateSensors();
         };
     </script>
 </body>

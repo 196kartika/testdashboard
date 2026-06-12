@@ -271,89 +271,86 @@
     </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCM03GJp6nRtQvU9CyyYtbm2VNTso5PzZ8",
-            authDomain: "test-43e8c.firebaseapp.com",
-            databaseURL: "https://test-43e8c-default-rtdb.firebaseio.com",
-            projectId: "test-43e8c",
-            storageBucket: "test-43e8c.firebasestorage.app",
-            messagingSenderId: "966290863174",
-            appId: "1:966290863174:web:4501e289ac4fc14c154647"
+    const firebaseConfig = {
+        apiKey: "AIzaSyCM03GJp6nRtQvU9CyyYtbm2VNTso5PzZ8",
+        authDomain: "test-43e8c.firebaseapp.com",
+        databaseURL: "https://test-43e8c-default-rtdb.firebaseio.com",
+        projectId: "test-43e8c",
+        storageBucket: "test-43e8c.firebasestorage.app",
+        messagingSenderId: "966290863174",
+        appId: "1:966290863174:web:4501e289ac4fc14c154647"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // PERBAIKAN 1: Mengubah path referensi dari "sensor" menjadi "monitoring" sesuai Firebase Anda
+    const sensorRef = ref(db, "monitoring");
+
+    onValue(sensorRef, (snapshot) => {
+        const vals = snapshot.val();
+        if (!vals) return;
+
+        // PERBAIKAN 2: Menyamakan pemanggilan key sesuai dengan yang dikirim oleh Arduino
+        const lux = Number(vals.lux ?? 0);
+        const tempU = Number(vals.suhu_udara ?? 0); // Diubah dari tempU ke suhu_udara
+        const tempT = Number(vals.suhu_tanah ?? 0); // Diubah dari tempT ke suhu_tanah
+        const humU = Number(vals.humidity ?? 0);    // Diubah dari humU ke humidity
+        const humT = Number(vals.moisture ?? 0);    // Diubah dari humT ke moisture
+        const ph = Number(vals.ph ?? 0);
+        const volt = Number(vals.tegangan ?? 0);    // Diubah dari volt ke tegangan
+
+        // 1. UPDATE KARTU ANGKA UTAMA DI DASHBOARD
+        document.getElementById("v-lux").innerText = lux.toFixed(0);
+        document.getElementById("v-temp-u").innerText = tempU.toFixed(1);
+        document.getElementById("v-temp-t").innerText = tempT.toFixed(1);
+        document.getElementById("v-hum-u").innerText = humU.toFixed(0);
+        document.getElementById("v-hum-t").innerText = humT.toFixed(0);
+        document.getElementById("v-ph").innerText = ph.toFixed(2);
+        document.getElementById("v-volt").innerText = volt.toFixed(2);
+
+        // 2. SIMPAN KE LOG UNTUK EXCEL (CSV)
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+        
+        dataLog.push({
+            Timestamp: now.toLocaleString('id-ID'),
+            Lahan: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
+            Cahaya_Lux: lux.toFixed(0),
+            SuhuUdara_C: tempU.toFixed(1),
+            LembapUdara_P: humU.toFixed(0),
+            LembapTanah_P: humT.toFixed(0),
+            SuhuTanah_C: tempT.toFixed(1),
+            pH: ph.toFixed(2),
+            Baterai_V: volt.toFixed(2)
+        });
+        if(dataLog.length > 1000) dataLog.shift();
+
+        // 3. PUSH DATA BARU KE GRAFIK CHART.JS
+        const chartMapping = {
+            'chart-lux': lux, 
+            'chart-temp-u': tempU, 
+            'chart-hum-u': humU, 
+            'chart-hum-t': humT,
+            'chart-temp-t': tempT, 
+            'chart-ph': ph, 
+            'chart-volt': volt
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Reference diarahkan ke node "sensor" sesuai struktur DB Anda
-        const sensorRef = ref(db, "sensor");
-
-        // Listener Realtime Firebase
-        onValue(sensorRef, (snapshot) => {
-            const vals = snapshot.val();
-            if (!vals) return;
-
-            // Ambil data (berikan fallback jika field kosong/null)
-            const lux = Number(vals.lux ?? 0);
-            const tempU = Number(vals.tempU ?? 0);
-            const tempT = Number(vals.tempT ?? 0);
-            const humU = Number(vals.humU ?? 0);
-            const humT = Number(vals.humT ?? 0);
-            const ph = Number(vals.ph ?? 0);
-            const volt = Number(vals.volt ?? 0);
-
-            // 1. UPDATE KARTU ANGKA UTAMA
-            document.getElementById("v-lux").innerText = lux.toFixed(0);
-            document.getElementById("v-temp-u").innerText = tempU.toFixed(1);
-            document.getElementById("v-temp-t").innerText = tempT.toFixed(1);
-            document.getElementById("v-hum-u").innerText = humU.toFixed(0);
-            document.getElementById("v-hum-t").innerText = humT.toFixed(0);
-            document.getElementById("v-ph").innerText = ph.toFixed(2);
-            document.getElementById("v-volt").innerText = volt.toFixed(2);
-
-            // 2. SIMPAN KE LOG EXCEL (CSV)
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
-            
-            dataLog.push({
-                Timestamp: now.toLocaleString('id-ID'),
-                Lahan: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
-                Cahaya_Lux: lux.toFixed(0),
-                SuhuUdara_C: tempU.toFixed(1),
-                LembapUdara_P: humU.toFixed(0),
-                LembapTanah_P: humT.toFixed(0),
-                SuhuTanah_C: tempT.toFixed(1),
-                pH: ph.toFixed(2),
-                Baterai_V: volt.toFixed(2)
-            });
-            if(dataLog.length > 1000) dataLog.shift(); // Cegah memory leak
-
-            // 3. PUSH DATA BARU KE GRAFIK CHART.JS
-            const chartMapping = {
-                'chart-lux': lux, 
-                'chart-temp-u': tempU, 
-                'chart-hum-u': humU, 
-                'chart-hum-t': humT,
-                'chart-temp-t': tempT, 
-                'chart-ph': ph, 
-                'chart-volt': volt
-            };
-
-            Object.keys(chartMapping).forEach(id => {
-                const chart = window.chartInstances[id];
-                if (chart) {
-                    // Geser sumbu X (Waktu)
-                    chart.data.labels.shift();
-                    chart.data.labels.push(timeStr);
-                    // Geser data sensor
-                    chart.data.datasets[0].data.shift();
-                    chart.data.datasets[0].data.push(chartMapping[id]);
-                    chart.update('none'); // Update performa ringan tanpa animasi patah-patah
-                }
-            });
+        Object.keys(chartMapping).forEach(id => {
+            const chart = window.chartInstances[id];
+            if (chart) {
+                chart.data.labels.shift();
+                chart.data.labels.push(timeStr);
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[0].data.push(chartMapping[id]);
+                chart.update('none'); 
+            }
         });
-    </script>
+    });
+</script>
 </body>
 </html>

@@ -186,29 +186,35 @@
         <p class="font-bold opacity-30 uppercase tracking-[0.2em] text-[9px]">&copy; 2026 CORNSENSE - SMART AGRICULTURE</p>
     </footer>
 
-    <script>
+<script>
+        // 1. VARIABEL GLOBAL
         let currentLoc = 'pinang';
         const MAX_POINTS = 15;
-        const chartInstances = {};
+        const chartInstances = {}; // Tempat menyimpan objek chart
         let dataLog = []; 
+
+        // Expore objek chart ke window agar bisa diakses oleh script type="module" Firebase
+        window.chartInstances = chartInstances;
 
         function switchLoc(loc) {
             currentLoc = loc;
             document.getElementById('btn-pinang').className = loc === 'pinang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-xs' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-xs';
             document.getElementById('btn-senggarang').className = loc === 'senggarang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-xs' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-xs';
             
-            // Reset grafik saat pindah lokasi
             Object.values(chartInstances).forEach(chart => {
                 chart.data.labels = Array(MAX_POINTS).fill('--:--:--');
                 chart.data.datasets[0].data = Array(MAX_POINTS).fill(0);
                 chart.update();
             });
-            // Opsional: kosongkan log saat ganti lahan agar tidak bercampur
             dataLog = [];
         }
 
+        // Fungsi inisialisasi grafik
         function initChart(id, label, color) {
-            const ctx = document.getElementById(id).getContext('2d');
+            const canvasElement = document.getElementById(id);
+            if (!canvasElement) return; // Proteksi jika elemen tidak ada
+            
+            const ctx = canvasElement.getContext('2d');
             chartInstances[id] = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -255,102 +261,97 @@
             document.getElementById('live-clock').innerText = new Date().toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
         }
 
-        // Jalankan inisialisasi dasar saat window load
-        window.addEventListener('DOMContentLoaded', () => {
-            updateTime(); 
-            setInterval(updateTime, 1000);
-            
-            initChart('chart-lux', 'Intensitas Cahaya (Lux)', '#ffb703');
-            initChart('chart-temp-u', 'Suhu Udara (°C)', '#ef4444');
-            initChart('chart-hum-u', 'Kelembapan Udara (%)', '#3b82f6');
-            initChart('chart-hum-t', 'Kelembapan Tanah (%)', '#064e3b');
-            initChart('chart-temp-t', 'Suhu Tanah (°C)', '#92400e');
-            initChart('chart-ph', 'pH Tanah', '#8b5cf6');
-            initChart('chart-volt', 'Tegangan Baterai (V)', '#10b981');
-        });
+        // LANGSUNG BUAT GRAFIK SEKARANG (Tanpa menunggu DOMContentLoaded agar Firebase tidak mendahului)
+        updateTime(); 
+        setInterval(updateTime, 1000);
+        
+        initChart('chart-lux', 'Intensitas Cahaya (Lux)', '#ffb703');
+        initChart('chart-temp-u', 'Suhu Udara (°C)', '#ef4444');
+        initChart('chart-hum-u', 'Kelembapan Udara (%)', '#3b82f6');
+        initChart('chart-hum-t', 'Kelembapan Tanah (%)', '#064e3b');
+        initChart('chart-temp-t', 'Suhu Tanah (°C)', '#92400e');
+        initChart('chart-ph', 'pH Tanah', '#8b5cf6');
+        initChart('chart-volt', 'Tegangan Baterai (V)', '#10b981');
     </script>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCM03GJp6nRtQvU9CyyYtbm2VNTso5PzZ8",
-        authDomain: "test-43e8c.firebaseapp.com",
-        databaseURL: "https://test-43e8c-default-rtdb.firebaseio.com",
-        projectId: "test-43e8c",
-        storageBucket: "test-43e8c.firebasestorage.app",
-        messagingSenderId: "966290863174",
-        appId: "1:966290863174:web:4501e289ac4fc14c154647"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // PERBAIKAN 1: Mengubah path referensi dari "sensor" menjadi "monitoring" sesuai Firebase Anda
-    const sensorRef = ref(db, "monitoring");
-
-    onValue(sensorRef, (snapshot) => {
-        const vals = snapshot.val();
-        if (!vals) return;
-
-        // PERBAIKAN 2: Menyamakan pemanggilan key sesuai dengan yang dikirim oleh Arduino
-        const lux = Number(vals.lux ?? 0);
-        const tempU = Number(vals.suhu_udara ?? 0); // Diubah dari tempU ke suhu_udara
-        const tempT = Number(vals.suhu_tanah ?? 0); // Diubah dari tempT ke suhu_tanah
-        const humU = Number(vals.humidity ?? 0);    // Diubah dari humU ke humidity
-        const humT = Number(vals.moisture ?? 0);    // Diubah dari humT ke moisture
-        const ph = Number(vals.ph ?? 0);
-        const volt = Number(vals.tegangan ?? 0);    // Diubah dari volt ke tegangan
-
-        // 1. UPDATE KARTU ANGKA UTAMA DI DASHBOARD
-        document.getElementById("v-lux").innerText = lux.toFixed(0);
-        document.getElementById("v-temp-u").innerText = tempU.toFixed(1);
-        document.getElementById("v-temp-t").innerText = tempT.toFixed(1);
-        document.getElementById("v-hum-u").innerText = humU.toFixed(0);
-        document.getElementById("v-hum-t").innerText = humT.toFixed(0);
-        document.getElementById("v-ph").innerText = ph.toFixed(2);
-        document.getElementById("v-volt").innerText = volt.toFixed(2);
-
-        // 2. SIMPAN KE LOG UNTUK EXCEL (CSV)
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
-        
-        dataLog.push({
-            Timestamp: now.toLocaleString('id-ID'),
-            Lahan: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
-            Cahaya_Lux: lux.toFixed(0),
-            SuhuUdara_C: tempU.toFixed(1),
-            LembapUdara_P: humU.toFixed(0),
-            LembapTanah_P: humT.toFixed(0),
-            SuhuTanah_C: tempT.toFixed(1),
-            pH: ph.toFixed(2),
-            Baterai_V: volt.toFixed(2)
-        });
-        if(dataLog.length > 1000) dataLog.shift();
-
-        // 3. PUSH DATA BARU KE GRAFIK CHART.JS
-        const chartMapping = {
-            'chart-lux': lux, 
-            'chart-temp-u': tempU, 
-            'chart-hum-u': humU, 
-            'chart-hum-t': humT,
-            'chart-temp-t': tempT, 
-            'chart-ph': ph, 
-            'chart-volt': volt
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM03GJp6nRtQvU9CyyYtbm2VNTso5PzZ8",
+            authDomain: "test-43e8c.firebaseapp.com",
+            databaseURL: "https://test-43e8c-default-rtdb.firebaseio.com",
+            projectId: "test-43e8c",
+            storageBucket: "test-43e8c.firebasestorage.app",
+            messagingSenderId: "966290863174",
+            appId: "1:966290863174:web:4501e289ac4fc14c154647"
         };
 
-        Object.keys(chartMapping).forEach(id => {
-            const chart = window.chartInstances[id];
-            if (chart) {
-                chart.data.labels.shift();
-                chart.data.labels.push(timeStr);
-                chart.data.datasets[0].data.shift();
-                chart.data.datasets[0].data.push(chartMapping[id]);
-                chart.update('none'); 
-            }
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const sensorRef = ref(db, "monitoring");
+
+        onValue(sensorRef, (snapshot) => {
+            const vals = snapshot.val();
+            if (!vals) return;
+
+            const lux = Number(vals.lux ?? 0);
+            const tempU = Number(vals.suhu_udara ?? 0); 
+            const tempT = Number(vals.suhu_tanah ?? 0); 
+            const humU = Number(vals.humidity ?? 0);    
+            const humT = Number(vals.moisture ?? 0);    
+            const ph = Number(vals.ph ?? 0);
+            const volt = Number(vals.tegangan ?? 0);    
+
+            // 1. Update text angka dashboard
+            document.getElementById("v-lux").innerText = lux.toFixed(0);
+            document.getElementById("v-temp-u").innerText = tempU.toFixed(1);
+            document.getElementById("v-temp-t").innerText = tempT.toFixed(1);
+            document.getElementById("v-hum-u").innerText = humU.toFixed(0);
+            document.getElementById("v-hum-t").innerText = humT.toFixed(0);
+            document.getElementById("v-ph").innerText = ph.toFixed(2);
+            document.getElementById("v-volt").innerText = volt.toFixed(2);
+
+            // 2. Log Data untuk CSV
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+            
+            dataLog.push({
+                Timestamp: now.toLocaleString('id-ID'),
+                Lahan: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
+                Cahaya_Lux: lux.toFixed(0),
+                SuhuUdara_C: tempU.toFixed(1),
+                LembapUdara_P: humU.toFixed(0),
+                LembapTanah_P: humT.toFixed(0),
+                SuhuTanah_C: tempT.toFixed(1),
+                pH: ph.toFixed(2),
+                Baterai_V: volt.toFixed(2)
+            });
+            if(dataLog.length > 1000) dataLog.shift();
+
+            // 3. Masukkan data ke grafik Chart.js secara Realtime
+            const chartMapping = {
+                'chart-lux': lux, 
+                'chart-temp-u': tempU, 
+                'chart-hum-u': humU, 
+                'chart-hum-t': humT,
+                'chart-temp-t': tempT, 
+                'chart-ph': ph, 
+                'chart-volt': volt
+            };
+
+            Object.keys(chartMapping).forEach(id => {
+                const chart = window.chartInstances[id];
+                if (chart) {
+                    chart.data.labels.shift();
+                    chart.data.labels.push(timeStr);
+                    chart.data.datasets[0].data.shift();
+                    chart.data.datasets[0].data.push(chartMapping[id]);
+                    chart.update('none'); // Update instan tanpa animasi lag
+                }
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>

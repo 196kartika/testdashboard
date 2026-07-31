@@ -37,7 +37,6 @@
                 <a href="#home" class="hover:text-app-yellow">Beranda</a>
                 <a href="#realtime" class="hover:text-app-yellow">Realtime Sensor</a>
                 <a href="#history" class="hover:text-app-yellow">Riwayat Data</a>
-                <a href="#login" class="bg-app-yellow text-app-green px-5 py-2 rounded-full hover:bg-white ml-4">Masuk</a>
             </div>
         </div>
     </nav>
@@ -106,11 +105,19 @@
 
     <section id="history" class="py-16 bg-gray-50 border-t border-gray-200">
         <div class="container mx-auto px-4 md:px-6">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-black text-app-green uppercase tracking-tight">Riwayat Data </h2>
-                 <button onclick="exportCSV()" class="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2 transition">
-                    <i class="fas fa-file-excel text-lg"></i> Export Log Excel (CSV)
-                 </button>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-app-green uppercase tracking-tight">Riwayat Data</h2>
+                    <p id="log-status" class="text-xs text-gray-500 font-semibold mt-1">Tersimpan: <span id="log-count" class="text-app-green font-bold">0</span> log data</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="clearLog()" class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-xl font-bold text-xs transition flex items-center gap-2">
+                        <i class="fas fa-trash"></i> Bersihkan Log
+                    </button>
+                    <button onclick="exportCSV()" class="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2 transition">
+                        <i class="fas fa-file-excel text-lg"></i> Export Log Excel (CSV)
+                    </button>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -166,53 +173,59 @@
         </div>
     </section>
 
-    <section id="login" class="py-24 bg-white flex justify-center items-center">
-        <div class="w-full max-w-sm p-8 bg-gray-50 rounded-[2.5rem] shadow-2xl relative border border-gray-200">
-            <div class="text-center mb-10">
-                <div class="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner border-2 border-app-green">
-                    <i class="fas fa-lock text-app-green text-xl"></i>
-                </div>
-                <h3 class="text-xl font-black text-app-green uppercase">Akses Sistem</h3>
-            </div>
-            <form class="space-y-4">
-                <input type="text" placeholder="Username" class="w-full px-5 py-3 bg-white rounded-2xl border-gray-200 focus:ring-2 focus:ring-app-green outline-none text-sm transition">
-                <input type="password" placeholder="Password" class="w-full px-5 py-3 bg-white rounded-2xl border-gray-200 focus:ring-2 focus:ring-app-green outline-none text-sm transition">
-                <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-lg transition uppercase text-sm tracking-widest mt-4">Login</button>
-            </form>
-        </div>
-    </section>
-
     <footer class="bg-app-green text-white py-10 text-center border-t-8 border-app-yellow">
         <p class="font-bold opacity-30 uppercase tracking-[0.2em] text-[9px]">&copy; 2026 CORNSENSE - SMART AGRICULTURE</p>
     </footer>
 
-<script>
-        // 1. VARIABEL GLOBAL
+    <script>
         let currentLoc = 'pinang';
-        const MAX_POINTS = 15;
-        const chartInstances = {}; // Tempat menyimpan objek chart
         let dataLog = []; 
+        const MAX_POINTS = 15;
+        const chartInstances = {};
 
-        // Expore objek chart ke window agar bisa diakses oleh script type="module" Firebase
         window.chartInstances = chartInstances;
+
+        function updateLogCountUI() {
+            const el = document.getElementById('log-count');
+            if (el) el.innerText = dataLog.length;
+        }
+
+        // FUNGSI PAKSA RESET SEMUA TAMPILAN JADI 0 DAN KOSONG
+        function resetUIValues() {
+            dataLog = []; // Kosongkan data log local
+            updateLogCountUI();
+
+            document.getElementById("v-lux").innerText = "0";
+            document.getElementById("v-temp-u").innerText = "0";
+            document.getElementById("v-temp-t").innerText = "0";
+            document.getElementById("v-hum-u").innerText = "0";
+            document.getElementById("v-hum-t").innerText = "0";
+            document.getElementById("v-ph").innerText = "0";
+            document.getElementById("v-volt").innerText = "0";
+
+            Object.values(chartInstances).forEach(chart => {
+                chart.data.labels = Array(MAX_POINTS).fill('--:--:--');
+                chart.data.datasets[0].data = Array(MAX_POINTS).fill(0);
+                chart.update();
+            });
+        }
 
         function switchLoc(loc) {
             currentLoc = loc;
             document.getElementById('btn-pinang').className = loc === 'pinang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-xs' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-xs';
             document.getElementById('btn-senggarang').className = loc === 'senggarang' ? 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-app-green text-white text-xs' : 'px-6 py-2 rounded-full font-bold transition shadow-lg bg-gray-200 text-gray-600 text-xs';
             
-            Object.values(chartInstances).forEach(chart => {
-                chart.data.labels = Array(MAX_POINTS).fill('--:--:--');
-                chart.data.datasets[0].data = Array(MAX_POINTS).fill(0);
-                chart.update();
-            });
-            dataLog = [];
+            // Langsung bersihkan layar saat tombol ditekan
+            resetUIValues();
+            
+            if (window.loadData) {
+                window.loadData(loc);
+            }
         }
 
-        // Fungsi inisialisasi grafik
         function initChart(id, label, color) {
             const canvasElement = document.getElementById(id);
-            if (!canvasElement) return; // Proteksi jika elemen tidak ada
+            if (!canvasElement) return;
             
             const ctx = canvasElement.getContext('2d');
             chartInstances[id] = new Chart(ctx, {
@@ -244,24 +257,32 @@
         }
 
         function exportCSV() {
-            if(dataLog.length === 0) return alert("Belum ada data dari Firebase!");
+            if (dataLog.length === 0) return alert("Belum ada riwayat data yang tersimpan!");
+            
             const headers = Object.keys(dataLog[0]).join(",");
-            const rows = dataLog.map(obj => Object.values(obj).join(",")).join("\n");
+            const rows = dataLog.map(obj => Object.values(obj).map(v => `"${v}"`).join(",")).join("\n");
             const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers + "\n" + rows;
             const encodedUri = encodeURI(csvContent);
+            
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Log_CornSense_${currentLoc}_${new Date().getTime()}.csv`);
+            link.setAttribute("download", `Log_CornSense_${currentLoc}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        function clearLog() {
+            if (confirm(`Apakah Anda yakin ingin mereset tampilan log untuk Lahan ${currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang'}?`)) {
+                resetUIValues();
+                alert("Tampilan log dibersihkan.");
+            }
         }
 
         function updateTime() {
             document.getElementById('live-clock').innerText = new Date().toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
         }
 
-        // LANGSUNG BUAT GRAFIK SEKARANG (Tanpa menunggu DOMContentLoaded agar Firebase tidak mendahului)
         updateTime(); 
         setInterval(updateTime, 1000);
         
@@ -272,86 +293,146 @@
         initChart('chart-temp-t', 'Suhu Tanah (°C)', '#92400e');
         initChart('chart-ph', 'pH Tanah', '#8b5cf6');
         initChart('chart-volt', 'Tegangan Baterai (V)', '#10b981');
+
+        updateLogCountUI();
     </script>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, onValue, off, query, limitToLast } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCM03GJp6nRtQvU9CyyYtbm2VNTso5PzZ8",
-            authDomain: "test-43e8c.firebaseapp.com",
-            databaseURL: "https://test-43e8c-default-rtdb.firebaseio.com",
-            projectId: "test-43e8c",
-            storageBucket: "test-43e8c.firebasestorage.app",
-            messagingSenderId: "966290863174",
-            appId: "1:966290863174:web:4501e289ac4fc14c154647"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyCM03GJp6nRtQvU9CyyYtbm2VNTso5PzZ8",
+  authDomain: "test-43e8c.firebaseapp.com",
+  databaseURL: "https://test-43e8c-default-rtdb.firebaseio.com",
+  projectId: "test-43e8c",
+  storageBucket: "test-43e8c.firebasestorage.app",
+  messagingSenderId: "966290863174",
+  appId: "1:966290863174:web:4501e289ac4fc14c154647",
+};
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const sensorRef = ref(db, "monitoring");
+    const firebaseConfig2 = {
+        apiKey: "AIzaSyBrysVeGsR26U_aGgxczdA8SmGUt7zscPI",
+        authDomain: "coba-coba-b6c3a.firebaseapp.com",
+        databaseURL: "https://coba-coba-b6c3a-default-rtdb.firebaseio.com",
+        projectId: "coba-coba-b6c3a",
+        storageBucket: "coba-coba-b6c3a.firebasestorage.app",
+        messagingSenderId: "843084994008",
+        appId: "1:843084994008:web:fd638af05aad73b61d8ead"
+    };
 
-        onValue(sensorRef, (snapshot) => {
-            const vals = snapshot.val();
-            if (!vals) return;
+    const app1 = initializeApp(firebaseConfig1);
+    const db1 = getDatabase(app1);
 
-            const lux = Number(vals.lux ?? 0);
-            const tempU = Number(vals.suhu_udara ?? 0); 
-            const tempT = Number(vals.suhu_tanah ?? 0); 
-            const humU = Number(vals.humidity ?? 0);    
-            const humT = Number(vals.moisture ?? 0);    
-            const ph = Number(vals.ph ?? 0);
-            const volt = Number(vals.tegangan ?? 0);    
+    const app2 = initializeApp(firebaseConfig2, "firebase2");
+    const db2 = getDatabase(app2);
 
-            // 1. Update text angka dashboard
-            document.getElementById("v-lux").innerText = lux.toFixed(0);
-            document.getElementById("v-temp-u").innerText = tempU.toFixed(1);
-            document.getElementById("v-temp-t").innerText = tempT.toFixed(1);
-            document.getElementById("v-hum-u").innerText = humU.toFixed(0);
-            document.getElementById("v-hum-t").innerText = humT.toFixed(0);
-            document.getElementById("v-ph").innerText = ph.toFixed(2);
-            document.getElementById("v-volt").innerText = volt.toFixed(2);
+    let activeQuery = null;
 
-            // 2. Log Data untuk CSV
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+    function loadDataFromFirebase(db, nodeName) {
+        // Matikan koneksi listener Firebase sebelumnya agar tidak saling tumpang tindih
+        if (activeQuery) {
+            off(activeQuery);
+        }
+
+        activeQuery = query(ref(db, nodeName), limitToLast(3000));
+
+        onValue(activeQuery, (snapshot) => {
+            const data = snapshot.val();
             
-            dataLog.push({
-                Timestamp: now.toLocaleString('id-ID'),
-                Lahan: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
-                Cahaya_Lux: lux.toFixed(0),
-                SuhuUdara_C: tempU.toFixed(1),
-                LembapUdara_P: humU.toFixed(0),
-                LembapTanah_P: humT.toFixed(0),
-                SuhuTanah_C: tempT.toFixed(1),
-                pH: ph.toFixed(2),
-                Baterai_V: volt.toFixed(2)
-            });
-            if(dataLog.length > 1000) dataLog.shift();
+            // JIKA DATA KOSONG DI FIREBASE
+            if (!data) {
+                resetUIValues();
+                return;
+            }
 
-            // 3. Masukkan data ke grafik Chart.js secara Realtime
-            const chartMapping = {
-                'chart-lux': lux, 
-                'chart-temp-u': tempU, 
-                'chart-hum-u': humU, 
-                'chart-hum-t': humT,
-                'chart-temp-t': tempT, 
-                'chart-ph': ph, 
-                'chart-volt': volt
-            };
+            dataLog = [];
 
-            Object.keys(chartMapping).forEach(id => {
-                const chart = window.chartInstances[id];
-                if (chart) {
-                    chart.data.labels.shift();
-                    chart.data.labels.push(timeStr);
-                    chart.data.datasets[0].data.shift();
-                    chart.data.datasets[0].data.push(chartMapping[id]);
-                    chart.update('none'); // Update instan tanpa animasi lag
-                }
-            });
+// Inside <script type="module"> pada fungsi loadDataFromFirebase:
+
+Object.keys(data).forEach(key => {
+    const item = data[key];
+    
+    const timestampStr = item.timestamp 
+        ? new Date(item.timestamp).toLocaleString('id-ID') 
+        : new Date().toLocaleString('id-ID');
+        
+    const timeStr = item.timestamp 
+        ? new Date(item.timestamp).toLocaleTimeString('id-ID', { hour12: false }) 
+        : new Date().toLocaleTimeString('id-ID', { hour12: false });
+
+    const lux = Number(item.lux ?? 0);
+    const tempU = Number(item.suhu_udara ?? 0);
+    const tempT = Number(item.suhu_tanah ?? 0);
+    const humU = Number(item.humidity ?? 0);
+    const humT = Number(item.moisture ?? 0);
+    const ph = Number(item.ph ?? 0);
+    
+    // DUMMY VOLTAGE (Nilai simulasi acak 11.8V - 12.6V)
+    const volt = 11.8 + (Math.random() * 0.8); 
+
+    dataLog.push({
+        Timestamp: timestampStr,
+        Waktu: timeStr,
+        Lahan: currentLoc === 'pinang' ? 'Pinang Kencana' : 'Senggarang',
+        Cahaya_Lux: lux.toFixed(0),
+        SuhuUdara_C: tempU.toFixed(1),
+        LembapUdara_P: humU.toFixed(0),
+        LembapTanah_P: humT.toFixed(0),
+        SuhuTanah_C: tempT.toFixed(1),
+        pH: ph.toFixed(2),
+        Baterai_V: volt.toFixed(2)
+    });
+});
+
+            if (dataLog.length > 0) {
+                const latest = dataLog[dataLog.length - 1];
+                document.getElementById("v-lux").innerText = latest.Cahaya_Lux;
+                document.getElementById("v-temp-u").innerText = latest.SuhuUdara_C;
+                document.getElementById("v-temp-t").innerText = latest.SuhuTanah_C;
+                document.getElementById("v-hum-u").innerText = latest.LembapUdara_P;
+                document.getElementById("v-hum-t").innerText = latest.LembapTanah_P;
+                document.getElementById("v-ph").innerText = latest.pH;
+                document.getElementById("v-volt").innerText = latest.Baterai_V;
+            }
+
+            updateLogCountUI();
+            renderChartsWithData(dataLog);
         });
-    </script>
+    }
+
+    function renderChartsWithData(logs) {
+        const recentData = logs.slice(-MAX_POINTS);
+        const chartKeys = ['chart-lux', 'chart-temp-u', 'chart-hum-u', 'chart-hum-t', 'chart-temp-t', 'chart-ph', 'chart-volt'];
+        const dataKeys = ['Cahaya_Lux', 'SuhuUdara_C', 'LembapUdara_P', 'LembapTanah_P', 'SuhuTanah_C', 'pH', 'Baterai_V'];
+
+        chartKeys.forEach((chartId, index) => {
+            const chart = window.chartInstances[chartId];
+            if (chart) {
+                const labels = recentData.map(d => d.Waktu || '--:--:--');
+                const values = recentData.map(d => Number(d[dataKeys[index]]) || 0);
+
+                while (labels.length < MAX_POINTS) {
+                    labels.unshift('--:--:--');
+                    values.unshift(0);
+                }
+
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = values;
+                chart.update();
+            }
+        });
+    }
+
+    window.loadData = function(loc) {
+        if (loc === 'pinang') {
+            loadDataFromFirebase(db1, "monitoring_history");
+        } else {
+            loadDataFromFirebase(db2, "monitoring_history");
+        }
+    };
+
+    window.loadData('pinang');
+</script>
 </body>
 </html>
